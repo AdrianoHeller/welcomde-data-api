@@ -1,26 +1,47 @@
 import * as http from 'http';
 import * as url from 'url';
-import * as https from 'https';
 import { StringDecoder } from 'string_decoder';
-import {parse} from 'querystring';
-const httpsSecret: string = '';
 
 const httpServer = http.createServer((req: http.IncomingMessage,res: http.ServerResponse) => {
     mainServer(req,res);
 });
 
-// const httpsServer = https.createServer(_,(req: http.IncomingMessage,res: http.ServerResponse) => {
-//     mainServer(req,res);
-// });
+interface IPayload{
+    method: string|any,
+    headers: http.IncomingHttpHeaders,
+    path: string,
+    body: string,
+};
 
 const mainServer = (req: http.IncomingMessage,res: http.ServerResponse) => {
-    const {URL} = url;
-    const { pathname } = new URL(req.url!);
-    const parsedQuery = parse(req.url!);
+    const {parse} = url;
+    const { pathname } = parse(req.url!,true);
+    const { method, headers } = req;
+    const parsedPath = pathname!.replace(/^\/+\/+$/g,'');
+    const Decoder: StringDecoder = new StringDecoder('utf-8');
+    let buffer: string = '';
+    req.on('data', stream => {
+        buffer += Decoder.write(stream);
+    });
+    req.on('end', () => {
+        buffer += Decoder.end();
+        
+        let payload: IPayload = {
+            method,
+            headers,
+            path: parsedPath,
+            body: buffer
+        };
 
-    console.log(pathname);
-    console.log(parsedQuery);
-
+        switch(Object.keys(MainRouter).includes(parsedPath)){
+            case true:
+                MainRouter[parsedPath](payload,res);
+                break;
+            default:
+                MainRouter['notFound'](payload,res);
+                break;    
+        };
+    });
 };
 
 interface ICallback{
@@ -31,10 +52,24 @@ const httpCallback:ICallback = (err,result) => {
     !err ? console.log(`HTTP Server listening on ${process.env.HTTP_PORT}`) : console.error(err);
 };
 
-const httpsCallback:ICallback = (err,result) => {
-    !err ? console.log(`HTTPS Server listening on ${process.env.HTTPS_PORT}`) : console.error(err);
+httpServer.listen(process.env.HTTP_PORT,httpCallback);
+
+interface IMainRouterProps{
+    ping: (payload: IPayload,res: http.ServerResponse) => void,
+    [parsedPath: string]: (payload: IPayload,res: http.ServerResponse) => void,
+    notFound: (payload: IPayload,res: http.ServerResponse) => void,
 };
 
-httpServer.listen(process.env.HTTP_PORT,httpCallback);
-// httpsServer.listen(process.env.HTTPS_PORT,httpsCallback);
+const MainRouter: IMainRouterProps = {
+    ping:(payload: IPayload,res: http.ServerResponse) => {
+        res.setHeader('Content-Type','application/json');
+        res.writeHead(200);
+        res.end('Ok');
+    },
+    notFound:(payload: IPayload,res: http.ServerResponse) => {
+        res.setHeader('Content-Type','application/json');
+        res.writeHead(404);
+        res.end('Ok');
+    },  
+};
 
