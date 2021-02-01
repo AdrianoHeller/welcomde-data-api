@@ -2,7 +2,8 @@ version: '3'
 
 services:
   node-api:
-    build: .      
+    build:
+      context: .      
     ports:
       - "3001:3001"
       - "5001:5001"

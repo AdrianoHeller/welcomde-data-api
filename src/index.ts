@@ -2,6 +2,7 @@ import * as http from 'http';
 import * as https from 'https';
 import * as url from 'url';
 import * as fs from 'fs';
+import client from './db';
 import {join} from 'path';
 import { StringDecoder } from 'string_decoder';
 import axios from 'axios';
@@ -11,11 +12,11 @@ const serverConfig = {
     cert: fs.readFileSync(join(__dirname,'../cert/server.cert')),
 };
 
-const httpServer = http.createServer((req: http.IncomingMessage,res: http.ServerResponse) => {
+const httpServer = http.createServer((req: http.IncomingMessage,res: http.ServerResponse):void => {
     mainServer(req,res);
 });
 
-const httpsServer = https.createServer(serverConfig,(req,res) => {
+const httpsServer = https.createServer(serverConfig,(req: http.IncomingMessage,res: http.ServerResponse):void => {
     mainServer(req,res);
 });
 
@@ -28,7 +29,7 @@ interface IPayload{
     bodyParser: Function,
 };
 
-const mainServer = (req: http.IncomingMessage,res: http.ServerResponse) => {
+const mainServer = (req: http.IncomingMessage,res: http.ServerResponse):void => {
     const {parse} = url;
     const { pathname,query } = parse(req.url!,true);
     const { method, headers } = req;
@@ -275,7 +276,27 @@ const MainRouter: IMainRouterProps = {
             res.writeHead(404);
             res.end(JSON.stringify(err));
         };        
-    },          
+    },
+    'files': async(payload,res):Promise<any> => {
+        const db = await client.db();
+        const data = await db.collection('files').find().toArray();
+        res.writeHead(200);
+        res.end(JSON.stringify(data)); 
+    },
+    'filesTest': async(payload,res):Promise<any> => {
+        const db = await client.db();
+        const acceptableMethods: string[] = ['POST'];
+        const { params,body,bodyParser,method } = payload;
+        const parsedBody =  bodyParser(body);
+        acceptableMethods.includes(method) ? (
+            await db.collection('files').insertOne(parsedBody),
+            res.writeHead(200),
+            res.end(JSON.stringify(params))
+        ) : (
+            res.writeHead(405),
+            res.end()
+        )        
+    },              
     notFound: (payload: IPayload,res: http.ServerResponse) => {
         res.setHeader('Content-Type','application/json');
         res.writeHead(404);
