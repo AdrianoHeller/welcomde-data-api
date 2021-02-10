@@ -7,6 +7,9 @@ import {join} from 'path';
 import { StringDecoder } from 'string_decoder';
 import axios from 'axios';
 import { ParsedUrlQuery } from 'querystring';
+import { Grid } from 'gridfs-stream';
+import * as mongo from 'mongodb';
+
 const serverConfig = {
     key: fs.readFileSync(join(__dirname,'../cert/server.key')),
     cert: fs.readFileSync(join(__dirname,'../cert/server.cert')),
@@ -283,20 +286,60 @@ const MainRouter: IMainRouterProps = {
         res.writeHead(200);
         res.end(JSON.stringify(data)); 
     },
-    'filesTest': async(payload,res):Promise<any> => {
-        const db = await client.db();
-        const acceptableMethods: string[] = ['POST'];
-        const { params,body,bodyParser,method } = payload;
-        const parsedBody =  bodyParser(body);
-        acceptableMethods.includes(method) ? (
-            await db.collection('files').insertOne(parsedBody),
-            res.writeHead(200),
-            res.end(JSON.stringify(params))
-        ) : (
-            res.writeHead(405),
-            res.end()
-        )        
-    },              
+    'redeParcerias/oauth': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
+        try{
+            res.setHeader('Content-Type','multipart/form-data');
+            const clientId: string = `${process.env.CLIENT_ID}`;
+            const clientSecret: string = `${process.env.CLIENT_SECRET}`;
+            let config = { 
+                httpsAgent: new https.Agent({ keepAlive: true })                
+            };
+            const { body,bodyParser } = payload;
+            const parsedBody = bodyParser(body);
+            parsedBody['grant_type'] = 'client_credentials';
+            parsedBody['client_id'] = clientId;
+            parsedBody['client_secret'] = clientSecret;
+            parsedBody['scope'] = '*';
+            const redeParceriasData = await axios.post('https://api.vantagens.club/v2/oauth/token',config,parsedBody);
+            res.writeHead(200);
+            res.end(JSON.stringify(redeParceriasData.data));    
+        }catch(err){
+            console.log(err);
+            res.writeHead(404);
+            res.end(JSON.stringify(err));
+        };        
+    },
+    'redeParcerias/users': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
+        try{       
+            let config = { 
+                httpsAgent: new https.Agent({ keepAlive: true }),
+                headers: { Authorization: `Bearer ${process.env.CLIENT_TOKEN}`}
+            };
+            const redeParceriasData = await axios.get('https://api.vantagens.club/v2/users',config);
+            res.writeHead(200);
+            res.end(JSON.stringify(redeParceriasData.data));    
+        }catch(err){
+            console.log(err);
+            res.writeHead(404);
+            res.end(JSON.stringify(err));
+        };        
+    },
+    'redeParcerias/users/:id': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
+        try{        
+            const { params } = payload;        
+            let config = { 
+                httpsAgent: new https.Agent({ keepAlive: true }),
+                headers: { Authorization: `Bearer ${process.env.CLIENT_TOKEN}`}
+            };
+            const redeParceriasData = await axios.get(`https://api.vantagens.club/v2/user?${params.id}`,config);
+            res.writeHead(200);
+            res.end(JSON.stringify(redeParceriasData.data));    
+        }catch(err){
+            console.log(err);
+            res.writeHead(404);
+            res.end(JSON.stringify(err));
+        };        
+    },                  
     notFound: (payload: IPayload,res: http.ServerResponse) => {
         res.setHeader('Content-Type','application/json');
         res.writeHead(404);

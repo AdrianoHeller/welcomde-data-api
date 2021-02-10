@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/AdrianoHeller/welcomde-data-api#readme",
   "dependencies": {
+    "@types/gridfs-stream": "^0.5.33",
     "@types/mongodb": "^3.6.3",
     "@types/node": "^14.14.22",
     "axios": "^0.21.1",
