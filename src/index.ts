@@ -7,8 +7,6 @@ import {join} from 'path';
 import { StringDecoder } from 'string_decoder';
 import axios from 'axios';
 import { ParsedUrlQuery } from 'querystring';
-import { Grid } from 'gridfs-stream';
-import * as mongo from 'mongodb';
 
 const serverConfig = {
     key: fs.readFileSync(join(__dirname,'../cert/server.key')),
@@ -98,6 +96,35 @@ const MainRouter: IMainRouterProps = {
         res.writeHead(200);
         res.end('Ok');
     },
+    'cadastro': async(payload:IPayload,res: http.ServerResponse) => {
+        try{
+            const { 
+                body,
+                bodyParser,
+                method } = payload;
+            let parsedBody = bodyParser(body);
+            if(method === 'POST'){
+                if(parsedBody['nome'] && parsedBody['data_nascimento'] && 
+                parsedBody['rg'] && parsedBody['cpf'] && parsedBody['telefone'] &&
+                parsedBody['e-mail'] && parsedBody['logradouro'] && parsedBody['cidade'] &&
+                parsedBody['numero'] && parsedBody['complemento'] && parsedBody['bairro'] && parsedBody['cep']){
+                    parsedBody['data_nascimento'] = new Date(parsedBody['data_nascimento']);
+                    parsedBody['data_registro'] = new Date().getUTCDate();                    
+                    res.writeHead(400);
+                    res.end(JSON.stringify(parsedBody));
+                }else{
+                    res.writeHead(400);
+                    res.end(JSON.stringify({}));
+                }
+            }else{
+                res.writeHead(405);
+                res.end(JSON.stringify({}));
+            }    
+        }catch(err){
+            res.writeHead(404);
+            res.end(JSON.stringify(err));
+        }
+    },    
     'monde/people': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
         try{        
         const tokenData: string = `${process.env.MONDE_TOKEN}`;
@@ -280,15 +307,19 @@ const MainRouter: IMainRouterProps = {
             res.end(JSON.stringify(err));
         };        
     },
-    'files': async(payload,res):Promise<any> => {
-        const db = await client.db();
-        const data = await db.collection('files').find().toArray();
-        res.writeHead(200);
-        res.end(JSON.stringify(data)); 
+    'weex/users': async(payload,res):Promise<any> => {
+        try{
+            const db = await client.db();
+            const data = await db.collection('wallet').find().toArray();
+            res.writeHead(200);
+            res.end(JSON.stringify(data));
+        }catch(err){
+            res.writeHead(500);
+            res.end(JSON.stringify({ 'Error': err }));
+        } 
     },
     'redeParcerias/oauth': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
         try{
-            res.setHeader('Content-Type','multipart/form-data');
             const clientId: string = `${process.env.CLIENT_ID}`;
             const clientSecret: string = `${process.env.CLIENT_SECRET}`;
             let config = { 
@@ -300,7 +331,8 @@ const MainRouter: IMainRouterProps = {
             parsedBody['client_id'] = clientId;
             parsedBody['client_secret'] = clientSecret;
             parsedBody['scope'] = '*';
-            const redeParceriasData = await axios.post('https://api.vantagens.club/v2/oauth/token',config,parsedBody);
+            const redeParceriasData = await axios.post('https://api.vantagens.club/oauth/token',config,parsedBody);
+            res.setHeader('Content-Type','multipart/form-data');
             res.writeHead(200);
             res.end(JSON.stringify(redeParceriasData.data));    
         }catch(err){
@@ -316,22 +348,6 @@ const MainRouter: IMainRouterProps = {
                 headers: { Authorization: `Bearer ${process.env.CLIENT_TOKEN}`}
             };
             const redeParceriasData = await axios.get('https://api.vantagens.club/v2/users',config);
-            res.writeHead(200);
-            res.end(JSON.stringify(redeParceriasData.data));    
-        }catch(err){
-            console.log(err);
-            res.writeHead(404);
-            res.end(JSON.stringify(err));
-        };        
-    },
-    'redeParcerias/users/:id': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
-        try{        
-            const { params } = payload;        
-            let config = { 
-                httpsAgent: new https.Agent({ keepAlive: true }),
-                headers: { Authorization: `Bearer ${process.env.CLIENT_TOKEN}`}
-            };
-            const redeParceriasData = await axios.get(`https://api.vantagens.club/v2/user?${params.id}`,config);
             res.writeHead(200);
             res.end(JSON.stringify(redeParceriasData.data));    
         }catch(err){
