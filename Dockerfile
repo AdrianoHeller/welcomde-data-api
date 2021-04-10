@@ -12,7 +12,7 @@ RUN npm install --silent
 
 RUN npm install -g typescript
 
-COPY src/ ./app/src/
+COPY src/ ./src
 
 COPY tsconfig.json ./
 
@@ -28,6 +28,6 @@ COPY --from=build /app/build ./build
 
 RUN npm install --silent && npm cache clean --force
 
-ENTRYPOINT ["/sbin/init","--"]
+ENTRYPOINT ["/sbin/tini","--"]
 
-CMD ["node","./app/build/index.js"]
+CMD ["node","build/index.js"]
