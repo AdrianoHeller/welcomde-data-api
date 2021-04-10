@@ -14,6 +14,8 @@ RUN npm install -g typescript
 
 COPY src/ ./src
 
+COPY cert ./cert
+
 COPY tsconfig.json ./
 
 RUN tsc
@@ -25,6 +27,8 @@ RUN apk add --no-cache tini
 COPY package*.json ./
 
 COPY --from=build /app/build ./build 
+
+COPY --from=build /app/cert ./cert
 
 RUN npm install --silent && npm cache clean --force
 
