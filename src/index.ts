@@ -7,6 +7,7 @@ import {join} from 'path';
 import { StringDecoder } from 'string_decoder';
 import axios from 'axios';
 import { ParsedUrlQuery } from 'querystring';
+import { ObjectId } from 'mongodb';
 
 const serverConfig = {
     key: fs.readFileSync(join(__dirname,'../cert/server.key')),
@@ -96,8 +97,9 @@ const MainRouter: IMainRouterProps = {
         res.writeHead(200);
         res.end('Ok');
     },
-    'cadastro': async(payload:IPayload,res: http.ServerResponse) => {
+    'usuarios/cadastro': async(payload:IPayload,res: http.ServerResponse) => {
         try{
+            const cursor = await client.db();
             const { 
                 body,
                 bodyParser,
@@ -108,10 +110,98 @@ const MainRouter: IMainRouterProps = {
                 parsedBody['rg'] && parsedBody['cpf'] && parsedBody['telefone'] &&
                 parsedBody['e-mail'] && parsedBody['logradouro'] && parsedBody['cidade'] &&
                 parsedBody['numero'] && parsedBody['complemento'] && parsedBody['bairro'] && parsedBody['cep']){
-                    parsedBody['data_nascimento'] = new Date(parsedBody['data_nascimento']);
-                    parsedBody['data_registro'] = new Date().getUTCDate();                    
+                    parsedBody['data_nascimento'] = parsedBody['data_nascimento'].split('/');
+                    let day = parsedBody['data_nascimento'][0] 
+                    let month = parsedBody['data_nascimento'][1];
+                    let year = parsedBody['data_nascimento'][2]; 
+                    parsedBody['data_nascimento_novo'] = new Date(`${month}/${day}/${year}`);
+                    delete parsedBody['data_nascimento'];
+                    parsedBody['data_nascimento'] = parsedBody['data_nascimento_novo'];
+                    delete parsedBody['data_nascimento_novo'];
+                    parsedBody['data_registro'] = new Date();
+                    await cursor.collection('people').insertOne(parsedBody);
+                    const data = await cursor.collection('people').aggregate([{$match:{nome: parsedBody['nome']}}]).toArray();                    
+                    res.writeHead(200);
+                    res.end(JSON.stringify(data));
+                }else{
                     res.writeHead(400);
-                    res.end(JSON.stringify(parsedBody));
+                    res.end(JSON.stringify({}));
+                }
+            }else{
+                res.writeHead(405);
+                res.end(JSON.stringify({}));
+            }    
+        }catch(err){
+            res.writeHead(404);
+            res.end(JSON.stringify(err));
+        }
+    },    
+    'usuarios/estadoAtual': async(payload:IPayload,res: http.ServerResponse) => {
+        try{
+            const cursor = await client.db();
+            const { 
+                body,
+                bodyParser,
+                method } = payload;
+            let parsedBody = bodyParser(body);            
+            if(method === 'GET'){
+                let actualUserData = await cursor.collection('people').aggregate([{ $match: { nome: parsedBody.nome } }]).toArray();
+                if(actualUserData instanceof Array && actualUserData.length > 0){
+                    res.writeHead(200);
+                    res.end(JSON.stringify(actualUserData[0]));    
+                }else{
+                    res.writeHead(500);
+                    res.end(JSON.stringify({'Message':'User not Found'}));
+                }
+            }else{
+                res.writeHead(405);
+                res.end(JSON.stringify({}));
+            }    
+        }catch(err){
+            res.writeHead(404);
+            res.end(JSON.stringify(err));
+        }
+    },
+    'usuarios/atualiza': async(payload:IPayload,res: http.ServerResponse) => {
+        try{
+            const cursor = await client.db();
+            const { 
+                body,
+                bodyParser,
+                method } = payload;
+            let parsedBody = bodyParser(body);            
+            if(method === 'POST'){
+                if(parsedBody['nome'] && parsedBody['data_nascimento'] && 
+                parsedBody['rg'] && parsedBody['cpf'] && parsedBody['telefone'] &&
+                parsedBody['e-mail'] && parsedBody['logradouro'] && parsedBody['cidade'] &&
+                parsedBody['numero'] && parsedBody['complemento'] && parsedBody['bairro'] && parsedBody['cep']){
+                    parsedBody['data_nascimento'] = parsedBody['data_nascimento'].split('/');
+                    let day = parsedBody['data_nascimento'][0] 
+                    let month = parsedBody['data_nascimento'][1];
+                    let year = parsedBody['data_nascimento'][2]; 
+                    parsedBody['data_nascimento_novo'] = new Date(`${month}/${day}/${year}`);
+                    delete parsedBody['data_nascimento'];
+                    parsedBody['data_nascimento'] = parsedBody['data_nascimento_novo'];
+                    delete parsedBody['data_nascimento_novo'];
+                    parsedBody['data_atualizacao'] = new Date();
+                    const data = await cursor.collection('people').aggregate([{ $match: { data_nascimento: parsedBody['data_nascimento'] } }]).toArray();                    
+                    await cursor.collection('people').updateOne({ _id: new ObjectId(data[0]._id) },{ $set: {
+                        'nome': parsedBody['nome'],
+                        'data_nascimento':parsedBody['data_nascimento'],
+                        'rg': parsedBody['rg'],
+                        'cpf': parsedBody['cpf'],
+                        'telefone': parsedBody['telefone'],
+                        'e-mail':parsedBody['e-mail'],
+                        'logradouro':parsedBody['logradouro'],
+                        'cidade':parsedBody['cidade'],
+                        'numero':parsedBody['numero'],
+                        'complemento':parsedBody['complemento'],
+                        'bairro':parsedBody['bairro'],
+                        'cep': parsedBody['cep']
+                    } });
+                    const usuarioAtualizado = await cursor.collection('people').aggregate([{ $match: { _id: data[0]._id } }]).toArray();                    
+                    res.writeHead(200);
+                    res.end(JSON.stringify(usuarioAtualizado));
                 }else{
                     res.writeHead(400);
                     res.end(JSON.stringify({}));
