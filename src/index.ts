@@ -279,13 +279,13 @@ const MainRouter: IMainRouterProps = {
     },
     'moskit/activities': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
         try{        
-        const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
-        let config = { 
-            httpsAgent: new https.Agent({ keepAlive: true }),
-            headers: { apikey: `${apiKey}`} }
-        const mondeData = await axios.get('https://api.moskitcrm.com/v1/activities',config);
-        res.writeHead(200);
-        res.end(JSON.stringify(mondeData.data));    
+            const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
+            let config = { 
+                httpsAgent: new https.Agent({ keepAlive: true }),
+                headers: { apikey: `${apiKey}`} }
+            const mondeData = await axios.get('https://api.moskitcrm.com/v1/activities',config);
+            res.writeHead(200);
+            res.end(JSON.stringify(mondeData.data));    
         }catch(err){
             console.log(err);
             res.writeHead(404);
@@ -324,13 +324,13 @@ const MainRouter: IMainRouterProps = {
     },
     'moskit/contacts': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
         try{        
-        const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
-        let config = { 
-            httpsAgent: new https.Agent({ keepAlive: true }),
-            headers: { apikey: `${apiKey}`} }
-        const mondeData = await axios.get('https://api.moskitcrm.com/v1/contacts',config);
-        res.writeHead(200);
-        res.end(JSON.stringify(mondeData.data));    
+            const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
+            let config = { 
+                httpsAgent: new https.Agent({ keepAlive: true }),
+                headers: { apikey: `${apiKey}`} }
+            const mondeData = await axios.get('https://api.moskitcrm.com/v1/contacts',config);
+            res.writeHead(200);
+            res.end(JSON.stringify(mondeData.data));    
         }catch(err){
             console.log(err);
             res.writeHead(404);
@@ -339,13 +339,13 @@ const MainRouter: IMainRouterProps = {
     },
     'moskit/deals': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
         try{        
-        const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
-        let config = { 
-            httpsAgent: new https.Agent({ keepAlive: true }),
-            headers: { apikey: `${apiKey}`} }
-        const mondeData = await axios.get('https://api.moskitcrm.com/v1/deals',config);
-        res.writeHead(200);
-        res.end(JSON.stringify(mondeData.data));    
+            const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
+            let config = { 
+                httpsAgent: new https.Agent({ keepAlive: true }),
+                headers: { apikey: `${apiKey}`} }
+            const mondeData = await axios.get('https://api.moskitcrm.com/v1/deals',config);
+            res.writeHead(200);
+            res.end(JSON.stringify(mondeData.data));    
         }catch(err){
             console.log(err);
             res.writeHead(404);
@@ -354,13 +354,13 @@ const MainRouter: IMainRouterProps = {
     },
     'moskit/emailTypes': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
         try{        
-        const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
-        let config = { 
-            httpsAgent: new https.Agent({ keepAlive: true }),
-            headers: { apikey: `${apiKey}`} }
-        const mondeData = await axios.get('https://api.moskitcrm.com/v1/emailTypes',config);
-        res.writeHead(200);
-        res.end(JSON.stringify(mondeData.data));    
+            const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
+            let config = { 
+                httpsAgent: new https.Agent({ keepAlive: true }),
+                headers: { apikey: `${apiKey}`} }
+            const mondeData = await axios.get('https://api.moskitcrm.com/v1/emailTypes',config);
+            res.writeHead(200);
+            res.end(JSON.stringify(mondeData.data));    
         }catch(err){
             console.log(err);
             res.writeHead(404);
@@ -369,13 +369,13 @@ const MainRouter: IMainRouterProps = {
     },
     'moskit/lostReasons': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
         try{        
-        const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
-        let config = { 
-            httpsAgent: new https.Agent({ keepAlive: true }),
-            headers: { apikey: `${apiKey}`} }
-        const mondeData = await axios.get('https://api.moskitcrm.com/v1/lostReasons',config);
-        res.writeHead(200);
-        res.end(JSON.stringify(mondeData.data));    
+            const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
+            let config = { 
+                httpsAgent: new https.Agent({ keepAlive: true }),
+                headers: { apikey: `${apiKey}`} }
+            const mondeData = await axios.get('https://api.moskitcrm.com/v1/lostReasons',config);
+            res.writeHead(200);
+            res.end(JSON.stringify(mondeData.data));    
         }catch(err){
             console.log(err);
             res.writeHead(404);
@@ -384,13 +384,13 @@ const MainRouter: IMainRouterProps = {
     },
     'moskit/phoneTypes/companies': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
         try{        
-        const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
-        let config = { 
-            httpsAgent: new https.Agent({ keepAlive: true }),
-            headers: { apikey: `${apiKey}`} }
-        const mondeData = await axios.get('https://api.moskitcrm.com/v1/phoneTypes/companies',config);
-        res.writeHead(200);
-        res.end(JSON.stringify(mondeData.data));    
+            const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
+            let config = { 
+                httpsAgent: new https.Agent({ keepAlive: true }),
+                headers: { apikey: `${apiKey}`} }
+            const mondeData = await axios.get('https://api.moskitcrm.com/v1/phoneTypes/companies',config);
+            res.writeHead(200);
+            res.end(JSON.stringify(mondeData.data));    
         }catch(err){
             console.log(err);
             res.writeHead(404);
