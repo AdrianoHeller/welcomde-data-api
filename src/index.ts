@@ -294,13 +294,13 @@ const MainRouter: IMainRouterProps = {
     },
     'moskit/activityTypes': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
         try{        
-        const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
-        let config = { 
-            httpsAgent: new https.Agent({ keepAlive: true }),
-            headers: { apikey: `${apiKey}`} }
-        const mondeData = await axios.get('https://api.moskitcrm.com/v1/activityTypes',config);
-        res.writeHead(200);
-        res.end(JSON.stringify(mondeData.data));    
+            const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
+            let config = { 
+                httpsAgent: new https.Agent({ keepAlive: true }),
+                headers: { apikey: `${apiKey}`} }
+            const mondeData = await axios.get('https://api.moskitcrm.com/v1/activityTypes',config);
+            res.writeHead(200);
+            res.end(JSON.stringify(mondeData.data));    
         }catch(err){
             console.log(err);
             res.writeHead(404);
