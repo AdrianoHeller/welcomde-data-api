@@ -216,15 +216,14 @@ const MainRouter: IMainRouterProps = {
         }
     },    
     'monde/people': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
-        try{  
-                  
-        const tokenData: string = `${process.env.MONDE_TOKEN}`;
-        let config = { 
-            httpsAgent: new https.Agent({ keepAlive: true }),
-            headers: { Authorization: `Bearer ${tokenData}`} }
-        const mondeData = await axios.get('https://web.monde.com.br/api/v2/people',config);
-        res.writeHead(200);
-        res.end(JSON.stringify(mondeData.data));    
+        try{                 
+            const tokenData: string = `${process.env.MONDE_TOKEN}`;
+            let config = { 
+                httpsAgent: new https.Agent({ keepAlive: true }),
+                headers: { Authorization: `Bearer ${tokenData}`} }
+            const mondeData = await axios.get('https://web.monde.com.br/api/v2/people',config);
+            res.writeHead(200);
+            res.end(JSON.stringify(mondeData.data));    
         }catch(err){
             console.log(err);
             res.writeHead(404);
@@ -233,12 +232,10 @@ const MainRouter: IMainRouterProps = {
     },
     'monde/tasks': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
         try{  
-            const getToken = await axios.post('https://localhost:5001/monde/getToken');      
-            const token = getToken;
             const tokenData: string = `${process.env.MONDE_TOKEN}`;
             let config = { 
                 httpsAgent: new https.Agent({ keepAlive: true }),
-                headers: { Authorization: `Bearer ${token}`} }
+                headers: { Authorization: `Bearer ${tokenData}`} }
             const mondeData = await axios.get('https://web.monde.com.br/api/v2/tasks',config);
             res.writeHead(200);
             res.end(JSON.stringify(mondeData.data));    
