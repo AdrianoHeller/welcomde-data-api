@@ -216,7 +216,8 @@ const MainRouter: IMainRouterProps = {
         }
     },    
     'monde/people': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
-        try{        
+        try{  
+                  
         const tokenData: string = `${process.env.MONDE_TOKEN}`;
         let config = { 
             httpsAgent: new https.Agent({ keepAlive: true }),
@@ -231,21 +232,23 @@ const MainRouter: IMainRouterProps = {
         };        
     },
     'monde/tasks': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
-        try{        
-        const tokenData: string = `${process.env.MONDE_TOKEN}`;
-        let config = { 
-            httpsAgent: new https.Agent({ keepAlive: true }),
-            headers: { Authorization: `Bearer ${tokenData}`} }
-        const mondeData = await axios.get('https://web.monde.com.br/api/v2/tasks',config);
-        res.writeHead(200);
-        res.end(JSON.stringify(mondeData.data));    
+        try{  
+            const getToken = await axios.post('https://localhost:5001/monde/getToken');      
+            const token = getToken;
+            const tokenData: string = `${process.env.MONDE_TOKEN}`;
+            let config = { 
+                httpsAgent: new https.Agent({ keepAlive: true }),
+                headers: { Authorization: `Bearer ${token}`} }
+            const mondeData = await axios.get('https://web.monde.com.br/api/v2/tasks',config);
+            res.writeHead(200);
+            res.end(JSON.stringify(mondeData.data));    
         }catch(err){
             console.log(err);
             res.writeHead(404);
             res.end(JSON.stringify(err));
         };        
     },
-    'monde/tokens': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
+    'monde/getToken': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
         interface ITokenPayloadProps{            
             data: {
                 "type": string,
@@ -269,8 +272,14 @@ const MainRouter: IMainRouterProps = {
                 httpsAgent: new https.Agent({ keepAlive: true }),
             };
             const responseToken = await axios.post('https://web.monde.com.br/api/v2/tokens',patternBody,config);
-            res.writeHead(200);
-            res.end(JSON.stringify(responseToken.data));    
+            if(Object.keys(responseToken).includes('data')){
+                res.writeHead(200);
+                const mappedResponse = await responseToken.data.data.attributes.token;
+                res.end(mappedResponse);
+            }else{
+                res.writeHead(500);
+                res.end(JSON.stringify(responseToken));
+            }                
         }catch(err){
             console.log(err);
             res.writeHead(404);
@@ -309,13 +318,13 @@ const MainRouter: IMainRouterProps = {
     },
     'moskit/companies': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
         try{        
-        const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
-        let config = { 
-            httpsAgent: new https.Agent({ keepAlive: true }),
-            headers: { apikey: `${apiKey}`} }
-        const mondeData = await axios.get('https://api.moskitcrm.com/v1/companies',config);
-        res.writeHead(200);
-        res.end(JSON.stringify(mondeData.data));    
+            const apiKey: string = `${process.env.MOSKIT_TOKEN}`;
+            let config = { 
+                httpsAgent: new https.Agent({ keepAlive: true }),
+                headers: { apikey: `${apiKey}`} }
+            const mondeData = await axios.get('https://api.moskitcrm.com/v1/companies',config);
+            res.writeHead(200);
+            res.end(JSON.stringify(mondeData.data));    
         }catch(err){
             console.log(err);
             res.writeHead(404);
@@ -400,52 +409,14 @@ const MainRouter: IMainRouterProps = {
     'weex/users': async(payload,res):Promise<any> => {
         try{
             const db = await client.db();
-            const data = await db.collection('wallet').find().toArray();
+            const data = await db.collection('people').find().toArray();
             res.writeHead(200);
             res.end(JSON.stringify(data));
         }catch(err){
             res.writeHead(500);
             res.end(JSON.stringify({ 'Error': err }));
         } 
-    },
-    'redeParcerias/oauth': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
-        try{
-            const clientId: string = `${process.env.CLIENT_ID}`;
-            const clientSecret: string = `${process.env.CLIENT_SECRET}`;
-            let config = { 
-                httpsAgent: new https.Agent({ keepAlive: true })                
-            };
-            const { body,bodyParser } = payload;
-            const parsedBody = bodyParser(body);
-            parsedBody['grant_type'] = 'client_credentials';
-            parsedBody['client_id'] = clientId;
-            parsedBody['client_secret'] = clientSecret;
-            parsedBody['scope'] = '*';
-            const redeParceriasData = await axios.post('https://api.vantagens.club/oauth/token',config,parsedBody);
-            res.setHeader('Content-Type','multipart/form-data');
-            res.writeHead(200);
-            res.end(JSON.stringify(redeParceriasData.data));    
-        }catch(err){
-            console.log(err);
-            res.writeHead(404);
-            res.end(JSON.stringify(err));
-        };        
-    },
-    'redeParcerias/users': async(payload: IPayload,res: http.ServerResponse):Promise<any> => {
-        try{       
-            let config = { 
-                httpsAgent: new https.Agent({ keepAlive: true }),
-                headers: { Authorization: `Bearer ${process.env.CLIENT_TOKEN}`}
-            };
-            const redeParceriasData = await axios.get('https://api.vantagens.club/v2/users',config);
-            res.writeHead(200);
-            res.end(JSON.stringify(redeParceriasData.data));    
-        }catch(err){
-            console.log(err);
-            res.writeHead(404);
-            res.end(JSON.stringify(err));
-        };        
-    },                  
+    },                     
     notFound: (payload: IPayload,res: http.ServerResponse) => {
         res.setHeader('Content-Type','application/json');
         res.writeHead(404);
