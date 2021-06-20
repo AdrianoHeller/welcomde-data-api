@@ -3,8 +3,8 @@ import { join } from 'path';
 import { config } from 'dotenv';
 config({ path: join(__dirname,'../.env') });
 
-const mongoUri: string = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PWD}@cluster0.t0iml.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
-const client = new MongoClient(mongoUri,{useNewUrlParser: true, useUnifiedTopology: true});
+const mongoUri = process.env.NODE_ENV === 'staging' ? process.env.MONGO_STAGING_URI : process.env.MONGO_PRODUCTION_URI;
+const client = new MongoClient(mongoUri!,{useNewUrlParser: true, useUnifiedTopology: true});
 
 const Main = async(): Promise<any> => {
     await client.connect();
