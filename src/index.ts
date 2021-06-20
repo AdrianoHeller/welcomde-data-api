@@ -120,7 +120,7 @@ const MainRouter: IMainRouterProps = {
                     delete parsedBody['data_nascimento_novo'];
                     parsedBody['data_registro'] = new Date();
                     await cursor.collection('people').insertOne(parsedBody);
-                    const data = await cursor.collection('people').aggregate([{$match:{nome: parsedBody['nome']}}]).toArray();                    
+                    const data = await cursor.collection('users').aggregate([{$match:{nome: parsedBody['nome']}}]).toArray();                    
                     res.writeHead(200);
                     res.end(JSON.stringify(data));
                 }else{
@@ -145,7 +145,7 @@ const MainRouter: IMainRouterProps = {
                 method } = payload;
             let parsedBody = bodyParser(body);            
             if(method === 'GET'){
-                let actualUserData = await cursor.collection('people').aggregate([{ $match: { nome: parsedBody.nome } }]).toArray();
+                let actualUserData = await cursor.collection('users').aggregate([{ $match: { nome: parsedBody.nome } }]).toArray();
                 if(actualUserData instanceof Array && actualUserData.length > 0){
                     res.writeHead(200);
                     res.end(JSON.stringify(actualUserData[0]));    
@@ -184,7 +184,7 @@ const MainRouter: IMainRouterProps = {
                     parsedBody['data_nascimento'] = parsedBody['data_nascimento_novo'];
                     delete parsedBody['data_nascimento_novo'];
                     parsedBody['data_atualizacao'] = new Date();
-                    const data = await cursor.collection('people').aggregate([{ $match: { data_nascimento: parsedBody['data_nascimento'] } }]).toArray();                    
+                    const data = await cursor.collection('users').aggregate([{ $match: { data_nascimento: parsedBody['data_nascimento'] } }]).toArray();                    
                     await cursor.collection('people').updateOne({ _id: new ObjectId(data[0]._id) },{ $set: {
                         'nome': parsedBody['nome'],
                         'data_nascimento':parsedBody['data_nascimento'],
@@ -199,7 +199,7 @@ const MainRouter: IMainRouterProps = {
                         'bairro':parsedBody['bairro'],
                         'cep': parsedBody['cep']
                     } });
-                    const usuarioAtualizado = await cursor.collection('people').aggregate([{ $match: { _id: data[0]._id } }]).toArray();                    
+                    const usuarioAtualizado = await cursor.collection('users').aggregate([{ $match: { _id: data[0]._id } }]).toArray();                    
                     res.writeHead(200);
                     res.end(JSON.stringify(usuarioAtualizado));
                 }else{
