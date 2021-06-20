@@ -26,6 +26,7 @@
     "axios": "^0.21.1",
     "dotenv": "^8.2.0",
     "gridfs-stream": "^1.1.1",
+    "matomo-tracker": "^2.2.4",
     "mongodb": "^3.6.3"
   },
   "devDependencies": {
