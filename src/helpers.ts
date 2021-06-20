@@ -6,8 +6,13 @@ const readFile = fs.readFileSync(join(__dirname,'../data/cadastro.csv'));
 const stringData = readFile.toString();
 
 const createToken = (tokenLength: number): string => {
-    let newToken;
+    let newToken:string = '';
     const listOfChars: string = `abcdefghijklmnopqrstuvwxyz0123456789`;
+    while(newToken.length < tokenLength){
+        const randomIndex = Math.floor(Math.random() * listOfChars.length -1);
+        const randomCharacter = listOfChars.charAt(randomIndex);
+        
+    }
     return newToken;
 };
 
