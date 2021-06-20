@@ -5,6 +5,12 @@ const readFile = fs.readFileSync(join(__dirname,'../data/cadastro.csv'));
 
 const stringData = readFile.toString();
 
+const createToken = (tokenLength: number): string => {
+    let newToken;
+    const listOfChars: string = `abcdefghijklmnopqrstuvwxyz0123456789`;
+    return newToken;
+};
+
 const transformData = (data:string) => {
     const splittedLines = data.split('\n');
     const newData = splittedLines.map( item => {
