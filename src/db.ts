@@ -12,6 +12,7 @@ const Main = async(): Promise<any> => {
 };
 
 Main()
+    .then(db => console.log(db))
     .catch(err => console.error(err));
 
 export default client;
