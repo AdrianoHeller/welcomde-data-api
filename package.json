@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "NODE_ENV=staging nodemon build/index.js",
+    "staging": "NODE_ENV=staging node build/index.js",
+    "production": "NODE_ENV=production node build/index.js"
   },
   "repository": {
     "type": "git",
@@ -24,5 +27,8 @@
     "dotenv": "^8.2.0",
     "gridfs-stream": "^1.1.1",
     "mongodb": "^3.6.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
   }
 }
