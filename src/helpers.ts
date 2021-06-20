@@ -11,8 +11,8 @@ const createToken = (tokenLength: number): string => {
     while(newToken.length < tokenLength){
         const randomIndex = Math.floor(Math.random() * listOfChars.length -1);
         const randomCharacter = listOfChars.charAt(randomIndex);
-        
-    }
+        newToken += randomCharacter;
+    };
     return newToken;
 };
 
