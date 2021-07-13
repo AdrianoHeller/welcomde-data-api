@@ -9,18 +9,18 @@ import axios from 'axios';
 import { ParsedUrlQuery } from 'querystring';
 import { ObjectId } from 'mongodb';
 
-const serverConfig = {
-    key: fs.readFileSync(join(__dirname,'../cert/server.key')),
-    cert: fs.readFileSync(join(__dirname,'../cert/server.cert')),
-};
+// const serverConfig = {
+//     key: fs.readFileSync(join(__dirname,'../cert/server.key')),
+//     cert: fs.readFileSync(join(__dirname,'../cert/server.cert')),
+// };
 
 const httpServer = http.createServer((req: http.IncomingMessage,res: http.ServerResponse):void => {
     mainServer(req,res);
 });
 
-const httpsServer = https.createServer(serverConfig,(req: http.IncomingMessage,res: http.ServerResponse):void => {
-    mainServer(req,res);
-});
+// const httpsServer = https.createServer(serverConfig,(req: http.IncomingMessage,res: http.ServerResponse):void => {
+//     mainServer(req,res);
+// });
 
 interface IPayload{
     method: string|any,
@@ -83,7 +83,7 @@ const httpsCallback:ICallback = (err,result) => {
 };
 
 httpServer.listen(process.env.HTTP_PORT,httpCallback);
-httpsServer.listen(process.env.HTTPS_PORT,httpsCallback);
+// httpsServer.listen(process.env.HTTPS_PORT,httpsCallback);
 
 interface IMainRouterProps{
     ping: (payload: IPayload,res: http.ServerResponse) => void,
